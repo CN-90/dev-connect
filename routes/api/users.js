@@ -66,7 +66,7 @@ router.post('/login', (req, res) => {
         .then(user => {
             //check for user
             if (!user) {
-                errors.email = 'Email or password is incorrect';
+                errors.email = 'Email was not found or password is incorrect.';
                 return res.status(404).json(errors);
             }
             // check password

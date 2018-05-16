@@ -1,5 +1,8 @@
 import React, { Component } from "react";
-import axios from "axios";
+import PropTypes from "prop-types";
+import { withRouter } from 'react-router-dom'; // withRouter is used so we can reroute the user from an action.
+import { connect } from "react-redux";
+import { registerUser } from "../../actions/authActions";
 
 class Register extends Component {
   constructor() {
@@ -11,6 +14,15 @@ class Register extends Component {
       password2: "",
       errors: {}
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // if props coming from reducer contains errors assign new error state
+    if (nextProps.errors) {
+      this.setState({
+        errors: nextProps.errors
+      })
+    }
   }
 
   onChange = e => {
@@ -27,20 +39,14 @@ class Register extends Component {
       password: this.state.password,
       password2: this.state.password2
     };
+
+    this.props.registerUser(newUser, this.props.history);
     // Don't need to add full API route address due to proxy in package.json
-    axios
-      .post("/api/users/register", newUser)
-      .then(res => console.log(res.data))
-      .catch(err => {
-        console.log(err.response.data);
-        this.setState({
-          errors: err.response.data
-        });
-      });
   };
 
   render() {
     const { errors } = this.state;
+
     return (
       <div className="register">
         <div className="container">
@@ -125,4 +131,15 @@ class Register extends Component {
   }
 }
 
-export default Register;
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors
+});
+
+export default connect(mapStateToProps, { registerUser })(withRouter(Register));
